@@ -6,53 +6,58 @@ namespace Fuck;
 
 public class Debug
 {
-    private static int SimpleInstruction(string instruction, StringBuilder sb, int offset)
+    private static int SimpleInstruction(string instruction, int offset)
     {
-        sb.AppendLine(instruction);
+        Console.WriteLine(instruction);
         return offset + 1;
     }
-    private static int ConstantInstruction(string instruction, Chunk chunk, StringBuilder sb, int offset)
+    private static int ConstantInstruction(string instruction, Chunk chunk, int offset)
     {
         byte constant = chunk.Code[offset + 1];
-        sb.AppendLine($"{instruction, -16} {constant, 4} '{chunk.Constants[constant].ToString()}'");
+        Console.WriteLine($"{instruction, -16} {constant, 4} '{chunk.Constants[constant].ToString()}'");
         return offset + 2;
     }
 
-    public static int DisassembleInstruction(Chunk chunk, StringBuilder sb, int offset)
+    public static int DisassembleInstruction(Chunk chunk, int offset)
     {
-        sb.Append($"{offset:D4} ");
+        Console.Write($"{offset:D4} ");
         if (offset > 0 && chunk.Lines[offset] == chunk.Lines[offset - 1])
         {
-            sb.Append("   | ");
+            Console.Write("   | ");
         }
         else {
-            sb.Append($"{chunk.Lines[offset], 4} ");
+            Console.Write($"{chunk.Lines[offset], 4} ");
         }
 
         OpCode instruction = (OpCode)chunk.Code[offset];
         switch(instruction)
         {
             case OpCode.LoadConstant:
-                return ConstantInstruction("LOAD_CONST", chunk, sb, offset);
-            case OpCode.Return:
-                return SimpleInstruction("RETURN", sb, offset);
+                return ConstantInstruction("LOAD_CONST", chunk, offset);
+            case OpCode.Add:
+                return SimpleInstruction("ADD", offset);
+            case OpCode.Subtract:
+                return SimpleInstruction("SUBTRACT", offset);
+            case OpCode.Multiply:
+                return SimpleInstruction("MULTIPLY", offset);
+            case OpCode.Divide:
+                return SimpleInstruction("DIVIDE", offset);
             case OpCode.Negate:
-                return SimpleInstruction("NEGATE", sb, offset);
+                return SimpleInstruction("NEGATE", offset);
+            case OpCode.Return:
+                return SimpleInstruction("RETURN", offset);
             default:
-                sb.Append($"<unknown opcode: {instruction}>");
+                Console.WriteLine($"<unknown opcode: {instruction}>");
                 return offset + 1;
         }
     }
 
-    public static string DisassembleChunk(Chunk chunk, string name)
+    public static void DisassembleChunk(Chunk chunk, string name)
     {
-        StringBuilder sb = new();
-        sb.AppendLine($"== {name} ==");
+        Console.WriteLine($"== {name} ==");
         for(int offset = 0; offset < chunk.Count;)
         {
-            offset = DisassembleInstruction(chunk, sb, offset);
+            offset = DisassembleInstruction(chunk, offset);
         }
-
-        return sb.ToString();
     }
 }

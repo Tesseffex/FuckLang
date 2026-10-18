@@ -7,6 +7,14 @@ namespace Fuck;
 public enum OpCode : byte
 {
     LoadConstant,
+    LoadNil,
+    LoadTrue,
+    LoadFalse,
+
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
 
     Negate,
 
